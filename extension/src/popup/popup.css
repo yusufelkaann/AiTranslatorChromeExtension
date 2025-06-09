@@ -1,0 +1,36 @@
+.container {
+    width: 300px;
+    padding: 15px;
+    font-family: Arial, sans-serif;
+}
+
+h2 {
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.translation-history {
+    margin-top: 15px;
+}
+
+#history-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.translation-item {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 10px;
+}
+
+.original-text {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.translated-text {
+    color: #333;
+    margin-top: 5px;
+    font-weight: bold;
+}

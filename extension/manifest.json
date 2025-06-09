@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Gemini Translator",
+  "version": "1.0",
+  "description": "Translate selected text using Gemini AI",  "permissions": [
+    "contextMenus",
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "http://localhost:*/*"
+  ],
+  "background": {
+    "service_worker": "dist/background.js"
+  },
+  "action": {
+    "default_popup": "dist/popup/popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["dist/content.js"]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "gemini-translator-extension",
+  "version": "1.0.0",
+  "description": "Chrome extension for translation using Gemini AI",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/chrome": "^0.0.246"
+  }
+}
