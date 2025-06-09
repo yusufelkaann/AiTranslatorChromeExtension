@@ -15,9 +15,9 @@ const genAI = new generative_ai_1.GoogleGenerativeAI(GEMINI_API_KEY);
 async function translateText(text) {
     try {
         // Get the generative model
-        const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
         // Construct the prompt
-        const prompt = `Translate the following text into English. If the text is already in English, translate it to Spanish. Only provide the translation without any additional text or explanation:
+        const prompt = `Translate the following text into Turkish. If the text is already in Turkish, translate it to English. Only provide the translation without any additional text or explanation:
     
     "${text}"`;
         // Generate content
