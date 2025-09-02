@@ -12,6 +12,7 @@ build/
 out/
 *.js
 !jest.config.js
+!src/**/*.js
 *.js.map
 
 # Environment variables
