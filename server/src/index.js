@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 const { translateText } = require('./gemini');
+const authRoutes = require('./auth');
 
 // Load environment variables
 const app = express();
@@ -11,6 +12,9 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+// Auth routes
+app.use('/', authRoutes);
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
@@ -19,13 +23,13 @@ app.get('/health', (req, res) => {
 // Translation endpoint
 app.post('/translate', async (req, res) => {
   try {
-    const { text } = req.body;
+    const { text, accessToken } = req.body;
 
     if (!text) {
       return res.status(400).json({ error: 'Text is required' });
     }
 
-    const translation = await translateText(text);
+    const translation = await translateText(text, accessToken);
     res.json({ translation });
   } catch (error) {
     console.error('Translation error:', error);
