@@ -1,15 +1,90 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
     <title>Gemini Translator</title>
     <link rel="stylesheet" href="popup.css">
 </head>
 <body>
     <div class="container">
-        <h2>Gemini Translator</h2>
+        <header class="header">
+            <h2>🌐 Gemini Translator</h2>
+            <div class="auth-status" id="auth-status">
+                <span class="status-indicator" id="status-indicator"></span>
+                <span id="status-text">Checking...</span>
+            </div>
+        </header>
+
+        <!-- Authentication Section -->
+        <div class="auth-section" id="auth-section">
+            <div class="auth-card">
+                <h3>🔐 Google Sheets Integration</h3>
+                <p class="auth-description">Connect to save your translations to Google Sheets</p>
+                <button id="auth-btn" class="auth-button">
+                    <span class="btn-icon">🔗</span>
+                    <span class="btn-text">Connect to Google</span>
+                </button>
+                <button id="logout-btn" class="logout-button" style="display: none;">
+                    <span class="btn-icon">🔓</span>
+                    <span class="btn-text">Disconnect</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Manual Translation Section -->
+        <div class="manual-translation">
+            <h3>📝 Quick Translate</h3>
+            <div class="input-group">
+                <textarea id="input-text" placeholder="Enter text to translate..." rows="3"></textarea>
+                <button id="translate-btn" class="translate-button">
+                    <span class="btn-icon">🔄</span>
+                    <span class="btn-text">Translate</span>
+                </button>
+            </div>
+            <div id="translation-result" class="translation-result" style="display: none;">
+                <div class="result-label">Translation:</div>
+                <div id="translated-text" class="translated-output"></div>
+                <button id="copy-btn" class="copy-button">
+                    <span class="btn-icon">📋</span>
+                    Copy
+                </button>
+            </div>
+        </div>
+
+        <!-- Settings Section -->
+        <div class="settings-section">
+            <h3>⚙️ Settings</h3>
+            <div class="setting-item">
+                <label class="setting-label">
+                    <input type="checkbox" id="auto-save-sheets" checked>
+                    <span class="checkmark"></span>
+                    Auto-save to Google Sheets
+                </label>
+            </div>
+            <div class="setting-item">
+                <label class="setting-label">
+                    <input type="checkbox" id="show-notifications" checked>
+                    <span class="checkmark"></span>
+                    Show translation notifications
+                </label>
+            </div>
+        </div>
+
+        <!-- Translation History Section -->
         <div class="translation-history">
-            <h3>Recent Translations</h3>
-            <div id="history-list"></div>
+            <div class="history-header">
+                <h3>📚 Recent Translations</h3>
+                <button id="clear-history" class="clear-button">Clear</button>
+            </div>
+            <div id="history-list" class="history-list">
+                <div class="no-history">No translations yet. Select text on any webpage to translate!</div>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="loading-overlay" style="display: none;">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Translating...</div>
         </div>
     </div>
     <script src="popup.js"></script>
