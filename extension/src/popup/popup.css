@@ -9,29 +9,38 @@ body {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: #333;
     overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+    width: 420px;
+    min-width: 420px;
 }
 
 .container {
-    width: 380px;
+    width: 420px;
+    min-width: 420px;
+    max-width: 420px;
     background: #ffffff;
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     overflow: hidden;
+    margin: 0;
 }
 
 /* Header */
 .header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    padding: 20px;
+    padding: 20px 25px;
     text-align: center;
     position: relative;
+    min-height: 80px;
 }
 
 .header h2 {
     font-size: 20px;
     font-weight: 600;
     margin-bottom: 8px;
+    word-wrap: break-word;
 }
 
 .auth-status {
@@ -63,7 +72,7 @@ body {
 
 /* Auth Section */
 .auth-section {
-    padding: 20px;
+    padding: 20px 25px;
     border-bottom: 1px solid #f0f0f0;
 }
 
@@ -75,6 +84,7 @@ body {
     font-size: 16px;
     margin-bottom: 8px;
     color: #333;
+    word-wrap: break-word;
 }
 
 .auth-description {
@@ -82,6 +92,7 @@ body {
     color: #666;
     margin-bottom: 15px;
     line-height: 1.4;
+    word-wrap: break-word;
 }
 
 .auth-button, .logout-button {
@@ -121,7 +132,7 @@ body {
 
 /* Manual Translation */
 .manual-translation {
-    padding: 20px;
+    padding: 20px 25px;
     border-bottom: 1px solid #f0f0f0;
 }
 
@@ -129,6 +140,7 @@ body {
     font-size: 16px;
     margin-bottom: 15px;
     color: #333;
+    word-wrap: break-word;
 }
 
 .input-group {
@@ -139,6 +151,7 @@ body {
 
 #input-text {
     width: 100%;
+    min-width: 350px;
     padding: 12px;
     border: 2px solid #e1e5e9;
     border-radius: 8px;
@@ -146,6 +159,7 @@ body {
     resize: vertical;
     font-family: inherit;
     transition: border-color 0.3s ease;
+    box-sizing: border-box;
 }
 
 #input-text:focus {
@@ -223,7 +237,7 @@ body {
 
 /* Settings Section */
 .settings-section {
-    padding: 20px;
+    padding: 20px 25px;
     border-bottom: 1px solid #f0f0f0;
 }
 
@@ -231,6 +245,7 @@ body {
     font-size: 16px;
     margin-bottom: 15px;
     color: #333;
+    word-wrap: break-word;
 }
 
 .setting-item {
@@ -254,7 +269,7 @@ body {
 
 /* History Section */
 .translation-history {
-    padding: 20px;
+    padding: 20px 25px;
 }
 
 .history-header {
@@ -262,11 +277,15 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .history-header h3 {
     font-size: 16px;
     color: #333;
+    word-wrap: break-word;
+    margin: 0;
 }
 
 .clear-button {
@@ -393,9 +412,21 @@ button:active {
 }
 
 /* Responsive adjustments */
-@media (max-width: 400px) {
+@media (max-width: 450px) {
+    body {
+        width: 100vw;
+        min-width: 350px;
+    }
+    
     .container {
         width: 100vw;
+        min-width: 350px;
         border-radius: 0;
     }
+}
+
+/* Ensure popup has proper dimensions */
+html {
+    width: 420px;
+    min-width: 420px;
 }

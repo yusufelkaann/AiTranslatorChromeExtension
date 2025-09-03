@@ -14,18 +14,64 @@ if (!GEMINI_API_KEY) {
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
+// Function to get the first sheet's name from a spreadsheet
+async function getFirstSheetName(sheets, spreadsheetId) {
+  try {
+    const response = await sheets.spreadsheets.get({
+      spreadsheetId: spreadsheetId,
+      fields: 'sheets.properties.title'
+    });
+    
+    if (response.data.sheets && response.data.sheets.length > 0) {
+      return response.data.sheets[0].properties.title;
+    }
+    
+    // Fallback to creating a new sheet if none exist
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: spreadsheetId,
+      requestBody: {
+        requests: [{
+          addSheet: {
+            properties: {
+              title: 'Translations'
+            }
+          }
+        }]
+      }
+    });
+    
+    return 'Translations';
+  } catch (error) {
+    console.error('Error getting sheet name:', error);
+    return 'Sheet1'; // Fallback to default name
+  }
+}
+
 // Function to save the translation to Google Sheets
 async function getOrCreateSheetId(accessToken) {
   try {
+    console.log('Getting or creating sheet ID...');
+    
     // Check if Sheet ID exists
     if (fs.existsSync(SHEET_ID_FILE)) {
       const data = JSON.parse(fs.readFileSync(SHEET_ID_FILE, 'utf-8'));
-      if (data.sheetId) return data.sheetId;
+      if (data.sheetId) {
+        console.log('Found existing sheet ID:', data.sheetId);
+        return data.sheetId;
+      }
+    }
+
+    // Always refresh tokens before creating sheets
+    const refreshedTokens = await TokenStorage.refreshTokensIfNeeded();
+    const validToken = refreshedTokens ? refreshedTokens.access_token : accessToken;
+    
+    if (!validToken) {
+      throw new Error('No valid access token available');
     }
 
     // Create a new Google Sheet
     const oauth2Client = new google.auth.OAuth2();
-    oauth2Client.setCredentials({ access_token: accessToken });
+    oauth2Client.setCredentials({ access_token: validToken });
     const drive = google.drive({ version: 'v3', auth: oauth2Client });
 
     const fileMetaData = {
@@ -42,14 +88,31 @@ async function getOrCreateSheetId(accessToken) {
     
     // Set up headers for the sheet
     const sheets = google.sheets({ version: 'v4', auth: oauth2Client });
-    await sheets.spreadsheets.values.update({
-      spreadsheetId: sheetId,
-      range: 'Sheet1!A1:C1',
-      valueInputOption: 'RAW',
-      resource: {
-        values: [['Original Text', 'Translation', 'Timestamp']]
+    
+    // Get the actual sheet name
+    const sheetName = await getFirstSheetName(sheets, sheetId);
+    
+    // Check if headers already exist
+    try {
+      const existingData = await sheets.spreadsheets.values.get({
+        spreadsheetId: sheetId,
+        range: `${sheetName}!A1:C1`
+      });
+      
+      if (!existingData.data.values || existingData.data.values.length === 0) {
+        // Add headers if they don't exist
+        await sheets.spreadsheets.values.update({
+          spreadsheetId: sheetId,
+          range: `${sheetName}!A1:C1`,
+          valueInputOption: 'RAW',
+          resource: {
+            values: [['Original Text', 'Translation', 'Timestamp']]
+          }
+        });
       }
-    });
+    } catch (headerError) {
+      console.log('Could not check/set headers, continuing without them:', headerError.message);
+    }
 
     fs.writeFileSync(SHEET_ID_FILE, JSON.stringify({ sheetId }));
     console.log('New Google Sheet created with ID:', sheetId);
@@ -78,8 +141,12 @@ async function translateText(text, accessToken = null) {
     // If accessToken is provided, save to Google Sheets
     if (accessToken) {
       try {
-        const sheetId = await getOrCreateSheetId(accessToken);
-        await saveToGoogleSheets(text, translation, accessToken, sheetId);
+        // Always refresh tokens before using them
+        const refreshedTokens = await TokenStorage.refreshTokensIfNeeded();
+        const validToken = refreshedTokens ? refreshedTokens.access_token : accessToken;
+        
+        const sheetId = await getOrCreateSheetId(validToken);
+        await saveToGoogleSheets(text, translation, validToken, sheetId);
       } catch (sheetError) {
         console.error('Google Sheets save failed, but translation succeeded:', sheetError);
         // Don't throw here - translation was successful even if sheets save failed
@@ -89,8 +156,12 @@ async function translateText(text, accessToken = null) {
       const tokens = TokenStorage.getTokens();
       if (tokens && tokens.access_token) {
         try {
-          const sheetId = await getOrCreateSheetId(tokens.access_token);
-          await saveToGoogleSheets(text, translation, tokens.access_token, sheetId);
+          // Refresh tokens if needed
+          const refreshedTokens = await TokenStorage.refreshTokensIfNeeded();
+          const validToken = refreshedTokens ? refreshedTokens.access_token : tokens.access_token;
+          
+          const sheetId = await getOrCreateSheetId(validToken);
+          await saveToGoogleSheets(text, translation, validToken, sheetId);
         } catch (sheetError) {
           console.error('Google Sheets save failed with stored tokens:', sheetError);
           // Don't throw here - translation was successful even if sheets save failed
@@ -107,10 +178,23 @@ async function translateText(text, accessToken = null) {
 
 async function saveToGoogleSheets(originalText, translatedText, accessToken, sheetId) {
   try {
+    console.log('Starting Google Sheets save...');
+    
+    // Always refresh tokens before making API calls
+    const refreshedTokens = await TokenStorage.refreshTokensIfNeeded();
+    const validToken = refreshedTokens ? refreshedTokens.access_token : accessToken;
+    
+    if (!validToken) {
+      throw new Error('No valid access token available');
+    }
+
     const oauth2Client = new google.auth.OAuth2();
-    oauth2Client.setCredentials({ access_token: accessToken });
+    oauth2Client.setCredentials({ access_token: validToken });
     const sheets = google.sheets({ version: 'v4', auth: oauth2Client });
 
+    // Get the actual sheet name instead of hardcoding 'Sheet1'
+    const sheetName = await getFirstSheetName(sheets, sheetId);
+    
     const timestamp = new Date().toISOString();
     const values = [
       [
@@ -122,7 +206,7 @@ async function saveToGoogleSheets(originalText, translatedText, accessToken, she
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: sheetId,
-      range: 'Sheet1!A:C',
+      range: `${sheetName}!A:C`,
       valueInputOption: 'RAW',
       resource: {
         values

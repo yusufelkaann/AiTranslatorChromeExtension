@@ -3,8 +3,8 @@ const { google } = require('googleapis');
 const TokenStorage = require('./tokenStorage');
 
 const router = express.Router();
-const GOOGLE_CLIENT_ID = '';
-const GOOGLE_CLIENT_SECRET = '';
+const GOOGLE_CLIENT_ID = "";
+const GOOGLE_CLIENT_SECRET = "";
 
 const oauth2Client = new google.auth.OAuth2(
     GOOGLE_CLIENT_ID,
